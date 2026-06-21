@@ -1,0 +1,111 @@
+{
+  "patients": {
+    "9066773444": {
+      "patient_id": "9066773444",
+      "name": "sanjana bj",
+      "password": "sanj",
+      "created_at": "2026-06-21T15:07:17.406665",
+      "section_a": {
+        "full_name": "sanjana bj",
+        "age": null,
+        "sex": "Female",
+        "dob": null,
+        "phone": null,
+        "email": null,
+        "occupation": null,
+        "marital_status": null
+      },
+      "section_b": {
+        "chief_complaint": "Fatigue, upper right abdominal discomfort, nausea, reduced appetite, jaundice, dark urine",
+        "duration": "Weeks",
+        "onset": "Weeks ago"
+      },
+      "section_c": {
+        "chronic_conditions": [],
+        "past_surgeries": [],
+        "past_hospitalizations": [],
+        "current_medications": [],
+        "allergies": [],
+        "previous_gi_issues": []
+      },
+      "section_d": {
+        "father": null,
+        "mother": null,
+        "siblings": null,
+        "gi_cancers": null,
+        "other_relevant": null
+      },
+      "section_e": {
+        "smoking": null,
+        "smoking_details": null,
+        "alcohol": null,
+        "alcohol_details": null,
+        "diet": null,
+        "exercise": null,
+        "stress_level": null
+      },
+      "section_f": {
+        "abdominal_pain": true,
+        "pain_location": "Upper right abdomen",
+        "pain_scale": 4,
+        "pain_character": "Dull ache/discomfort",
+        "pain_radiation": null,
+        "pain_timing": "Worse after heavy/fatty meals, physical activity, pressure; somewhat relieved by rest",
+        "nausea": true,
+        "vomiting": false,
+        "vomiting_details": null,
+        "heartburn": false,
+        "regurgitation": false,
+        "dysphagia": false,
+        "bloating": null,
+        "bowel_habits": "No change in frequency or consistency, only color",
+        "stool_character": "Lighter, like clay or pale yellow",
+        "blood_in_stool": false,
+        "rectal_bleeding": false,
+        "jaundice": true,
+        "weight_loss": "A few kilograms over several weeks",
+        "appetite_change": "Reduced appetite",
+        "fever": true
+      },
+      "visits": [
+        {
+          "chat_transcript": "ASSISTANT: Hello sanjana bj! I'm the clinic's intake assistant. I'll ask you a few questions about what brought you in today so the doctor is prepared for your visit.\n\n**What is the main reason for your visit today?**\n\nA) Abdominal / stomach pain\nB) Nausea or vomiting\nC) Heartburn or acid reflux\nD) Bowel changes (diarrhea, constipation)\nE) Other (please describe briefly)\nUSER: E)\"I've been feeling very tired lately\nASSISTANT: Thank you for letting me know. Fatigue can be related to many things.\n\nTo help us narrow down the focus for a gastroenterology clinic visit, are you experiencing any *other* symptoms in addition to the fatigue, especially related to your digestive system?\n\nA) Yes\nB) No\nUSER: A) Yes\n\n\"I've also noticed a reduced appetite, mild nausea, and some discomfort in the upper right side of my abdomen.\"\nASSISTANT: Thank you for providing more details. Let's focus on the discomfort you're feeling in the upper right side of your abdomen.\n\nOn a scale of 0 to 10, with 0 being no discomfort and 10 being the worst possible pain, how would you rate your typical discomfort?\nUSER: Around 4 out of 10.\n\n\"It's more of a dull ache or discomfort than severe pain. It's noticeable, especially when I'm moving around, but it's usually manageable.\"\nASSISTANT: Thank you for clarifying the nature and intensity of your abdominal discomfort.\n\nWhen did this upper right abdominal discomfort first begin?\n\nA) Days ago\nB) Weeks ago\nC) Months ago\nD) Longer than a few months ago\nUSER: B) Weeks ago\nASSISTANT: Thank you. You mentioned the discomfort is noticeable, especially when you're moving around.\n\nDoes anything specific seem to *make* the upper right abdominal discomfort worse, or *relieve* it?\n\nA) Yes, certain activities or foods make it worse (please describe)\nB) Yes, certain activities or things relieve it (please describe)\nC) Both A and B (please describe)\nD) No specific triggers or relievers that I've noticed\nUSER: A) Yes, certain activities or foods make it worse.\n\n\"I've noticed the discomfort tends to get worse after eating heavy or fatty meals. It can also feel more noticeable when I'm physically active or when I press on the area under my right ribs. I haven't found anything that reliably relieves it other than resting.\nASSISTANT: Thank you for those details. You mentioned earlier that you've been experiencing mild nausea.\n\nHow often do you experience this nausea?\n\nA) Rarely (less than once a week)\nB) Sometimes (1-3 times a week)\nC) Often (most days)\nD) Constantly\nUSER: C) Often (most days)\n\n\"I feel mildly nauseated on most days. It's usually worse in the morning or after eating, but I haven't been vomiting.\"\nASSISTANT: Thank you for clarifying about your nausea and confirming no vomiting.\n\nDo you experience any of the following symptoms?\n\nA) Heartburn (a burning sensation in your chest)\nB) Regurgitation (food or acid coming back up into your throat or mouth)\nC) Both A and B\nD) Neither heartburn nor regurgitation\nUSER: D) Neither heartburn nor regurgitation\n\n\"I haven't noticed any heartburn or acid coming back up into my throat. My main symptoms are fatigue, jaundice, dark urine, nausea, reduced appetite, and the discomfort in the upper right part of my abdomen.\"\nASSISTANT: Thank you for mentioning jaundice and dark urine. These are important symptoms.\n\nCould you please describe when you first noticed your skin or the whites of your eyes turning yellow, or when your urine first became unusually dark?\n\nA) Days ago\nB) Weeks ago\nC) Months ago\nD) Longer than a few months ago\nUSER: B) Weeks ago\n\n\"I first noticed my urine becoming darker a few weeks ago. Shortly afterward, I noticed that the whites of my eyes looked yellow, and then the yellowing of my skin became more noticeable.\"\nASSISTANT: Thank you for providing the timeline for these symptoms.\n\nGiven the dark urine and jaundice, have you noticed any changes in the color of your stool?\n\nA) Yes, my stool has become much lighter, like clay or pale yellow.\nB) Yes, my stool has become unusually dark or black.\nC) No significant change in stool color.\nD) I haven't paid attention to stool color.\nUSER: A) Yes, my stool has become much lighter, like clay or pale yellow.\nASSISTANT: Thank you for clarifying the change in your stool color.\n\nYou also mentioned reduced appetite. Have you experienced any unintentional weight loss recently?\n\nA) Yes, I have lost weight without trying.\nB) No, my weight has been stable.\nC) I'm not sure, as I haven't weighed myself.\nUSER: A) Yes, I have lost weight without trying.\n\n\"I've lost a few kilograms over the past several weeks\nASSISTANT: Thank you for confirming the unintentional weight loss.\n\nHave you experienced a fever (temperature of 100.4\u00b0F / 38\u00b0C or higher) at any point since your symptoms began?\n\nA) Yes\nB) No\nC) I'm not sure / haven't checked\nUSER: A) Yes\n\n\"I had a low-grade fever when the symptoms first started a few weeks ago. It lasted for a few days along with feeling tired and generally unwell, but it has mostly gone away now.\"\nASSISTANT: Thank you for sharing that you had an initial low-grade fever.\n\nRegarding your bowel movements, besides the change in color, have you noticed any other changes in your bowel habits, such as:\n\nA) Increased frequency of bowel movements (diarrhea)\nB) Decreased frequency of bowel movements (constipation)\nC) Changes in stool consistency (e.g., loose, watery, hard, pellet-like)\nD) No significant change in frequency or consistency, only color.\nUSER: D\nASSISTANT: Thank you for clarifying your bowel habits.\n\nI believe I have gathered enough information for the doctor to prepare for your visit.\n\nINTAKE_COMPLETE\n```json\n{\n  \"chief_complaint\": \"Fatigue, upper right abdominal discomfort, nausea, reduced appetite, jaundice, dark urine\",\n  \"duration\": \"Weeks\",\n  \"onset\": \"Weeks ago\",\n  \"section_f\": {\n    \"abdominal_pain\": true,\n    \"pain_location\": \"Upper right abdomen\",\n    \"pain_scale\": 4,\n    \"pain_character\": \"Dull ache/discomfort\",\n    \"pain_radiation\": null,\n    \"pain_timing\": \"Worse after heavy/fatty meals, physical activity, pressure; somewhat relieved by rest\",\n    \"nausea\": true,\n    \"vomiting\": false,\n    \"vomiting_details\": null,\n    \"heartburn\": false,\n    \"regurgitation\": false,\n    \"dysphagia\": false,\n    \"bloating\": null,\n    \"bowel_habits\": \"No change in frequency or consistency, only color\",\n    \"stool_character\": \"Lighter, like clay or pale yellow\",\n    \"blood_in_stool\": false,\n    \"rectal_bleeding\": false,\n    \"jaundice\": true,\n    \"weight_loss\": \"A few kilograms over several weeks\",\n    \"appetite_change\": \"Reduced appetite\",\n    \"fever\": true\n  }\n}\n```",
+          "doctor_summary": "## Patient Summary\nMs. Sanjana BJ, an adult female (age and sex not explicitly documented, inferred from name), presents with a several-week history of fatigue and symptoms suggestive of hepatobiliary dysfunction. No significant past medical history, chronic conditions, or social habits (smoking, alcohol) are recorded.\n\n## Chief Complaint\nThe patient reports a several-week onset of fatigue, upper right quadrant (URQ) abdominal discomfort, frequent mild nausea, reduced appetite, jaundice, dark urine, and subsequent unintentional weight loss. She also experienced an initial low-grade fever that has since resolved.\n\n## Symptom Review\n**Key Positive Findings**:\n*   **URQ Discomfort**: Described as a dull ache (4/10), exacerbated after heavy/fatty meals, physical activity, or direct pressure, with some relief at rest.\n*   **Jaundice**: Noted weeks ago, commencing with dark urine, followed by scleral icterus and then skin yellowing.\n*   **Stool Changes**: Reports lighter, clay-like or pale yellow stools, with no change in frequency or consistency.\n*   **Constitutional Symptoms**: Significant fatigue, reduced appetite, and unintentional weight loss of a few kilograms over several weeks. An initial low-grade fever was present for a few days at symptom onset.\n*   **Nausea**: Frequent (most days), often worse in the mornings or post-prandially, without emesis.\n\n**Key Negative Findings**:\n*   No reported vomiting, heartburn, regurgitation, dysphagia, bloating, or changes in bowel frequency/consistency (other than color).\n*   No hematochezia or melena.\n\n## Relevant Background\nThe patient's EMR does not document any chronic medical conditions, past surgeries, current medications, allergies, or prior gastrointestinal issues. Family history and social history are currently unrecorded.\n\n## Possible Differentials (for doctor's consideration)\n1.  **Choledocholithiasis**: The acute to subacute onset of URQ pain, obstructive jaundice (dark urine, pale stools), nausea, and initial fever are highly suggestive of a common bile duct stone.\n2.  **Acute Viral Hepatitis (e.g., Hepatitis A or B)**: Can present with fatigue, nausea, URQ discomfort, jaundice, and initial fever, although pale stools are less common unless severe cholestasis is present.\n3.  **Malignancy (e.g., Pancreatic head mass, Cholangiocarcinoma)**: Progressive obstructive jaundice, significant unintentional weight loss, reduced appetite, and dull abdominal pain are concerning features that warrant exclusion of a malignant process.\n4.  **Drug-Induced Liver Injury (DILI)**: Despite no listed current medications, DILI can manifest with jaundice, fatigue, and URQ pain, and should be considered pending a full medication review.\n5.  **Gallstone Pancreatitis**: While URQ pain is dominant, if a common bile duct stone caused transient obstruction leading to pancreatitis, it could explain initial fever and nausea, though classic pancreatitis pain is often epigastric and radiating to the back.",
+          "intake_data": {
+            "chief_complaint": "Fatigue, upper right abdominal discomfort, nausea, reduced appetite, jaundice, dark urine",
+            "duration": "Weeks",
+            "onset": "Weeks ago",
+            "section_f": {
+              "abdominal_pain": true,
+              "pain_location": "Upper right abdomen",
+              "pain_scale": 4,
+              "pain_character": "Dull ache/discomfort",
+              "pain_radiation": null,
+              "pain_timing": "Worse after heavy/fatty meals, physical activity, pressure; somewhat relieved by rest",
+              "nausea": true,
+              "vomiting": false,
+              "vomiting_details": null,
+              "heartburn": false,
+              "regurgitation": false,
+              "dysphagia": false,
+              "bloating": null,
+              "bowel_habits": "No change in frequency or consistency, only color",
+              "stool_character": "Lighter, like clay or pale yellow",
+              "blood_in_stool": false,
+              "rectal_bleeding": false,
+              "jaundice": true,
+              "weight_loss": "A few kilograms over several weeks",
+              "appetite_change": "Reduced appetite",
+              "fever": true
+            }
+          },
+          "diagnosis": "Acute viral hepatitis (most likely)\n\nHepatitis A, B, C, E",
+          "prescription": "Rest and adequate hydration\nAvoid alcohol\nAvoid unnecessary medications, especially hepatotoxic drugs\nMaintain nutrition with small frequent meals\nLiver function tests (LFTs)\nHepatitis serology panel\nCBC, PT/INR\nAbdominal ultrasound\nFollow-up after results\n\nSymptomatic medications (if needed)\n\nAntiemetic for significant nausea (e.g., ondansetron)",
+          "visit_id": "V001",
+          "date": "2026-06-21T15:24:42.687047"
+        }
+      ],
+      "updated_at": "2026-06-21T15:27:17.912474"
+    }
+  }
+}
