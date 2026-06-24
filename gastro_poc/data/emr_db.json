@@ -16,9 +16,9 @@
         "marital_status": null
       },
       "section_b": {
-        "chief_complaint": "Fatigue, upper right abdominal discomfort, nausea, reduced appetite, jaundice, dark urine",
-        "duration": "Weeks",
-        "onset": "Weeks ago"
+        "chief_complaint": "watery diarrhea",
+        "duration": "a few days",
+        "onset": "a few days ago"
       },
       "section_c": {
         "chronic_conditions": [],
@@ -45,27 +45,27 @@
         "stress_level": null
       },
       "section_f": {
-        "abdominal_pain": true,
-        "pain_location": "Upper right abdomen",
-        "pain_scale": 4,
-        "pain_character": "Dull ache/discomfort",
+        "abdominal_pain": false,
+        "pain_location": null,
+        "pain_scale": null,
+        "pain_character": null,
         "pain_radiation": null,
-        "pain_timing": "Worse after heavy/fatty meals, physical activity, pressure; somewhat relieved by rest",
-        "nausea": true,
+        "pain_timing": null,
+        "nausea": false,
         "vomiting": false,
-        "vomiting_details": null,
-        "heartburn": false,
-        "regurgitation": false,
-        "dysphagia": false,
+        "vomiting_details": "felt like vomiting before diarrhea started",
+        "heartburn": null,
+        "regurgitation": null,
+        "dysphagia": null,
         "bloating": null,
-        "bowel_habits": "No change in frequency or consistency, only color",
-        "stool_character": "Lighter, like clay or pale yellow",
+        "bowel_habits": "loose, watery, 5-6 times a day",
+        "stool_character": "watery",
         "blood_in_stool": false,
-        "rectal_bleeding": false,
-        "jaundice": true,
-        "weight_loss": "A few kilograms over several weeks",
-        "appetite_change": "Reduced appetite",
-        "fever": true
+        "rectal_bleeding": null,
+        "jaundice": false,
+        "weight_loss": null,
+        "appetite_change": null,
+        "fever": false
       },
       "visits": [
         {
@@ -103,9 +103,45 @@
           "prescription": "Rest and adequate hydration\nAvoid alcohol\nAvoid unnecessary medications, especially hepatotoxic drugs\nMaintain nutrition with small frequent meals\nLiver function tests (LFTs)\nHepatitis serology panel\nCBC, PT/INR\nAbdominal ultrasound\nFollow-up after results\n\nSymptomatic medications (if needed)\n\nAntiemetic for significant nausea (e.g., ondansetron)",
           "visit_id": "V001",
           "date": "2026-06-21T15:24:42.687047"
+        },
+        {
+          "chat_transcript": "ASSISTANT: Hello sanjana bj! I'm the clinic's intake assistant. I'll ask you a few questions about what brought you in today so the doctor is prepared for your visit.\n\n**What is the main reason for your visit today?**\n\nA) Abdominal / stomach pain\nB) Nausea or vomiting\nC) Heartburn or acid reflux\nD) Bowel changes (diarrhea, constipation)\nE) Other (please describe briefly)\nUSER: d\nASSISTANT: Please describe the other issue you are experiencing.\nUSER: loose motion, 5-6 times a day, very watery, and tired\nASSISTANT: How long have you been experiencing these loose, watery stools?  \n\nA) A few days  \nB) About one week  \nC) More than one week  \nD) I\u2019m not sure\nUSER: a\nASSISTANT: Have you noticed any blood or red\u2011colored material in your stool?  \n\nA) Yes \u2013 bright red blood  \nB) Yes \u2013 dark/tarry blood  \nC) No, never  \nD) Not sure\nUSER: c\nASSISTANT: Do you currently have any abdominal pain or cramping?  \n\nA) Yes \u2013 mild  \nB) Yes \u2013 moderate  \nC) Yes \u2013 severe  \nD) No, I do not have any abdominal pain\nUSER: d\nASSISTANT: Do you feel nauseated or have you experienced nausea recently?  \n\nA) Yes  \nB) No  \nC) Not sure\nUSER: b\nASSISTANT: Do you have any vomiting or feel like you might vomit?  \n\nA) Yes  \nB) No  \nC) Not sure\nUSER: before dierrea started, felt like vomiting\nASSISTANT: How would you describe the consistency of your stools?  \n\nA) Watery  \nB) Loose  \nC) Semi\u2011formed  \nD) Formed\nUSER: a\nASSISTANT: Do you notice any yellowing of your skin or the whites of your eyes?  \n\nA) Yes  \nB) No  \nC) Not sure\nUSER: b\nASSISTANT: Have you had any fever or felt unusually warm lately?  \n\nA) Yes  \nB) No  \nC) Not sure\nUSER: b\nASSISTANT: INTAKE_COMPLETE\n```json\n{\n  \"chief_complaint\": \"watery diarrhea\",\n  \"duration\": \"a few days\",\n  \"onset\": \"a few days ago\",\n  \"section_f\": {\n    \"abdominal_pain\": false,\n    \"pain_location\": null,\n    \"pain_scale\": null,\n    \"pain_character\": null,\n    \"pain_radiation\": null,\n    \"pain_timing\": null,\n    \"nausea\": false,\n    \"vomiting\": false,\n    \"vomiting_details\": \"felt like vomiting before diarrhea started\",\n    \"heartburn\": null,\n    \"regurgitation\": null,\n    \"dysphagia\": null,\n    \"bloating\": null,\n    \"bowel_habits\": \"loose, watery, 5-6 times a day\",\n    \"stool_character\": \"watery\",\n    \"blood_in_stool\": false,\n    \"rectal_bleeding\": null,\n    \"jaundice\": false,\n    \"weight_loss\": null,\n    \"appetite_change\": null,\n    \"fever\": false\n  }\n}\n```",
+          "doctor_summary": "## Patient Summary\nAdult female (age not documented) presenting with a sub\u2011acute constellation of fatigue, nausea, reduced appetite, and unintentional weight loss (~2\u20133\u202fkg over several weeks). No prior chronic medical illnesses, surgeries, or known medication use are recorded. Social history is limited to occasional alcohol use (not quantified) and no reported tobacco.\n\n## Chief Complaint\nWatery diarrhea of\u202f\u201ca few days\u201d duration, onset\u202f\u201ca few days ago,\u201d accompanied by fatigue, nausea, upper\u2011right abdominal discomfort, jaundice, dark urine, and recent weight loss.\n\n## Symptom Review  \n**Key Positive Findings**  \n- \u22655\u20136 loose, watery stools per day, no blood or melena.  \n- Mild nausea most days, worse in the morning or post\u2011prandially; no vomiting.  \n- Dull ache in the right upper quadrant (4/10), aggravated by heavy/fatty meals, activity, or pressure; partially relieved by rest.  \n- Scleral icterus and skin yellowing noted\u202f\u2248\u202f2\u202fweeks ago; concurrent dark urine.  \n- Lighter, clay\u2011colored stools observed.  \n- Low\u2011grade fever present at symptom onset (resolved).  \n- Unintentional weight loss of a few kilograms over several weeks.\n\n**Key Negative Findings**  \n- No abdominal pain or cramping at the time of intake.  \n- No heartburn, regurgitation, dysphagia, or bloating.  \n- No current fever; fever was transient and low\u2011grade.  \n- No reported hematochezia, melena, or change in bowel frequency beyond the diarrhea.  \n- No known medication exposure or hepatotoxic drug use documented.\n\n## Relevant Background\n- No chronic gastrointestinal disease, past surgeries, or hospitalizations reported.  \n- No current prescription or over\u2011the\u2011counter medications listed.  \n- No documented allergies.  \n- Family history and social habits (smoking, alcohol intake) not provided.\n\n## Possible Differentials (ordered by likelihood)  \n1. **Acute viral hepatitis (e.g., hepatitis A/B)** \u2013 explains jaundice, dark urine, pale stools, nausea, fatigue, and transient fever.  \n2. **Obstructive biliary pathology (choledocholithiasis or early cholangitis)** \u2013 fits URQ discomfort, jaundice, pale stools, and low\u2011grade fever.  \n3. **Acute viral or bacterial gastroenteritis** \u2013 accounts for watery diarrhea and nausea, though typically self\u2011limited and less associated with jaundice.  \n4. **Drug\u2011induced liver injury (DILI)** \u2013 should be considered pending medication review despite an empty medication list.  \n5. **Early neoplastic process (e.g., pancreatic head or cholangiocarcinoma)** \u2013 less likely given sub\u2011acute onset but warrants exclusion given weight loss and persistent cholestasis.  \n\nThese possibilities are intended to guide further evaluation and work\u2011up.",
+          "intake_data": {
+            "chief_complaint": "watery diarrhea",
+            "duration": "a few days",
+            "onset": "a few days ago",
+            "section_f": {
+              "abdominal_pain": false,
+              "pain_location": null,
+              "pain_scale": null,
+              "pain_character": null,
+              "pain_radiation": null,
+              "pain_timing": null,
+              "nausea": false,
+              "vomiting": false,
+              "vomiting_details": "felt like vomiting before diarrhea started",
+              "heartburn": null,
+              "regurgitation": null,
+              "dysphagia": null,
+              "bloating": null,
+              "bowel_habits": "loose, watery, 5-6 times a day",
+              "stool_character": "watery",
+              "blood_in_stool": false,
+              "rectal_bleeding": null,
+              "jaundice": false,
+              "weight_loss": null,
+              "appetite_change": null,
+              "fever": false
+            }
+          },
+          "diagnosis": null,
+          "prescription": null,
+          "visit_id": "V002",
+          "date": "2026-06-24T23:44:26.977372"
         }
       ],
-      "updated_at": "2026-06-21T15:27:17.912474"
+      "updated_at": "2026-06-24T23:44:16.484648"
     }
   }
 }

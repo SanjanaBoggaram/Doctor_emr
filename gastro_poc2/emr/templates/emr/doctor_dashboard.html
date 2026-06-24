@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Doctor Dashboard{% endblock %}
+{% block content %}
+<h3>🩺 Doctor Dashboard</h3>
+
+{% if not patients %}
+  <div class="alert alert-info">No patients registered yet.</div>
+{% else %}
+<div class="row">
+  <!-- Patient list -->
+  <div class="col-md-3">
+    <div class="section-card p-2">
+      <div class="list-group list-group-flush">
+        {% for pt in patients %}
+          <a class="list-group-item list-group-item-action {% if selected and pt.pk == selected.pk %}active{% endif %}"
+             href="?patient={{ pt.pk }}">
+            {{ pt.full_name }}<br><small class="text-muted">{{ pt.patient_id }}</small>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail -->
+  <div class="col-md-9">
+    {% if selected %}
+    <div class="row">
+      <!-- Latest visit + AI summary + dx/rx -->
+      <div class="col-lg-7">
+        <div class="section-card">
+          <h5>Latest Visit — {{ selected.full_name }}</h5>
+          {% if not latest %}
+            <div class="alert alert-info mb-0">This patient has not completed an intake chat yet.</div>
+          {% else %}
+            <div class="text-muted small mb-2">{{ latest.visit_code }} · {{ latest.created_at|date:"Y-m-d H:i" }}</div>
+            <div class="mb-3" style="white-space: pre-wrap;">{{ latest.doctor_summary|default:"No AI summary generated for this visit." }}</div>
+
+            <hr>
+            <h6>📝 Diagnosis &amp; Prescription</h6>
+            <form method="post" action="{% url 'emr:visit_update' latest.pk %}">
+              {% csrf_token %}
+              <div class="mb-2">
+                <label class="form-label">Diagnosis</label>
+                <textarea name="diagnosis" class="form-control" rows="2">{{ latest.diagnosis }}</textarea>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Prescription / Management Plan</label>
+                <textarea name="prescription" class="form-control" rows="4">{{ latest.prescription }}</textarea>
+              </div>
+              <button class="btn btn-primary" type="submit">💾 Save to EMR</button>
+            </form>
+
+            <div class="accordion mt-3" id="transcriptAcc">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#transcript">
+                    📜 View intake chat transcript
+                  </button>
+                </h2>
+                <div id="transcript" class="accordion-collapse collapse" data-bs-parent="#transcriptAcc">
+                  <div class="accordion-body" style="white-space: pre-wrap;">{{ latest.chat_transcript }}</div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Full EMR -->
+      <div class="col-lg-5">
+        <div class="section-card">
+          <h5>📋 Full EMR</h5>
+          {% with a=selected.section_a %}
+          <p class="mb-1"><strong>Personal:</strong> Age {{ a.age|default:"—" }}, {{ a.sex|default:"—" }},
+             {{ a.occupation|default:"—" }}</p>
+          {% endwith %}
+          {% with c=selected.section_c %}
+          <p class="mb-1"><strong>Conditions:</strong> {{ c.chronic_conditions|join:", "|default:"—" }}</p>
+          <p class="mb-1"><strong>Medications:</strong> {{ c.current_medications|join:", "|default:"—" }}</p>
+          <p class="mb-1"><strong>Allergies:</strong> {{ c.allergies|join:", "|default:"—" }}</p>
+          {% endwith %}
+          {% with e=selected.section_e %}
+          <p class="mb-1"><strong>Habits:</strong> Smoking {{ e.smoking|default:"—" }}, Alcohol {{ e.alcohol|default:"—" }}</p>
+          {% endwith %}
+
+          <hr>
+          <strong>Symptoms (F):</strong>
+          <div class="row">
+            {% for key, value in selected.section_f.items %}
+              {% if value is not None and value != "" %}
+                <div class="col-12 small"><strong>{{ key|title }}:</strong> {{ value }}</div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          {% if selected.visits.all %}
+          <hr>
+          <strong>All Visits ({{ selected.visits.all|length }})</strong>
+          {% for v in selected.visits.all %}
+            <div class="small border-bottom py-1">
+              {{ v.visit_code }} — {{ v.created_at|date:"Y-m-d" }}
+              {% if v.diagnosis %}<br>Dx: {{ v.diagnosis }}{% endif %}
+            </div>
+          {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

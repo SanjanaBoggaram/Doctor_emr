@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gastro}
+      POSTGRES_USER: ${POSTGRES_USER:-gastro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gastro}
+    ports:
+      - "5432:5432"
+    volumes:
+      - gastro_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gastro}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  gastro_pgdata:

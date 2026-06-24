@@ -1,0 +1,9 @@
+{% for b in bubbles %}
+  <div class="bubble {{ b.role }}">{{ b.content }}</div>
+{% endfor %}
+
+{% if intake_done %}
+  <div class="alert alert-success mt-2 mb-0">
+    ✅ Intake complete! Your information has been saved. The doctor will review it before your appointment.
+  </div>
+{% endif %}

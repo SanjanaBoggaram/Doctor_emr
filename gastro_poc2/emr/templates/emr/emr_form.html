@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}My Health Record{% endblock %}
+{% block content %}
+<h3>📋 My Health Record</h3>
+<p class="text-muted">Review and update your information. Each section saves independently.</p>
+
+<!-- Section A — Personal Info -->
+<div class="section-card">
+  <h5>🧑 Section A — Personal Information</h5>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="section" value="a">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Full Name</label>
+        <input name="full_name" class="form-control" value="{{ p.full_name }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Age</label>
+        <input name="age" type="number" class="form-control" value="{{ p.section_a.age|default_if_none:'' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Sex</label>
+        <select name="sex" class="form-select">
+          <option value="">—</option>
+          <option value="Male" {% if p.section_a.sex == "Male" %}selected{% endif %}>Male</option>
+          <option value="Female" {% if p.section_a.sex == "Female" %}selected{% endif %}>Female</option>
+          <option value="Other" {% if p.section_a.sex == "Other" %}selected{% endif %}>Other</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Date of Birth</label>
+        <input name="dob" class="form-control" placeholder="DD/MM/YYYY" value="{{ p.section_a.dob|default_if_none:'' }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Phone</label>
+        <input name="phone" class="form-control" value="{{ p.section_a.phone|default_if_none:'' }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Email</label>
+        <input name="email" class="form-control" value="{{ p.section_a.email|default_if_none:'' }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Occupation</label>
+        <input name="occupation" class="form-control" value="{{ p.section_a.occupation|default_if_none:'' }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Marital Status</label>
+        <select name="marital_status" class="form-select">
+          <option value="">—</option>
+          <option {% if p.section_a.marital_status == "Single" %}selected{% endif %}>Single</option>
+          <option {% if p.section_a.marital_status == "Married" %}selected{% endif %}>Married</option>
+          <option {% if p.section_a.marital_status == "Divorced" %}selected{% endif %}>Divorced</option>
+          <option {% if p.section_a.marital_status == "Widowed" %}selected{% endif %}>Widowed</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Address</label>
+        <input name="address" class="form-control" value="{{ p.section_a.address|default_if_none:'' }}">
+      </div>
+    </div>
+    <button class="btn btn-primary mt-3" type="submit">Save Personal Info</button>
+  </form>
+</div>
+
+<!-- Section C — Past Medical & Surgical -->
+<div class="section-card">
+  <h5>🏥 Section C — Past Medical &amp; Surgical History</h5>
+  <p class="text-muted small">One item per line.</p>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="section" value="c">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Chronic Conditions</label>
+        <textarea name="chronic_conditions" class="form-control" rows="3">{{ p.section_c.chronic_conditions|join:"
+" }}</textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Past Surgeries</label>
+        <textarea name="past_surgeries" class="form-control" rows="3">{{ p.section_c.past_surgeries|join:"
+" }}</textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Current Medications</label>
+        <textarea name="current_medications" class="form-control" rows="3">{{ p.section_c.current_medications|join:"
+" }}</textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Allergies</label>
+        <textarea name="allergies" class="form-control" rows="3">{{ p.section_c.allergies|join:"
+" }}</textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Past Hospitalizations</label>
+        <textarea name="past_hospitalizations" class="form-control" rows="2">{{ p.section_c.past_hospitalizations|join:"
+" }}</textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Previous GI Issues</label>
+        <textarea name="previous_gi_issues" class="form-control" rows="2">{{ p.section_c.previous_gi_issues|join:"
+" }}</textarea>
+      </div>
+    </div>
+    <button class="btn btn-primary mt-3" type="submit">Save Medical History</button>
+  </form>
+</div>
+
+<!-- Section D — Family History -->
+<div class="section-card">
+  <h5>👨‍👩‍👧 Section D — Family History</h5>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="section" value="d">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Father's Health Issues</label>
+        <input name="father" class="form-control" value="{{ p.section_d.father|default_if_none:'' }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Mother's Health Issues</label>
+        <input name="mother" class="form-control" value="{{ p.section_d.mother|default_if_none:'' }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Siblings' Health Issues</label>
+        <input name="siblings" class="form-control" value="{{ p.section_d.siblings|default_if_none:'' }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">GI Cancers in Family?</label>
+        <select name="gi_cancers" class="form-select">
+          <option value="">—</option>
+          <option {% if p.section_d.gi_cancers == "Yes" %}selected{% endif %}>Yes</option>
+          <option {% if p.section_d.gi_cancers == "No" %}selected{% endif %}>No</option>
+          <option {% if p.section_d.gi_cancers == "Unknown" %}selected{% endif %}>Unknown</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Other Relevant Family History</label>
+        <textarea name="other_relevant" class="form-control" rows="2">{{ p.section_d.other_relevant|default_if_none:'' }}</textarea>
+      </div>
+    </div>
+    <button class="btn btn-primary mt-3" type="submit">Save Family History</button>
+  </form>
+</div>
+
+<!-- Section E — Habits -->
+<div class="section-card">
+  <h5>🚬 Section E — Personal &amp; Social Habits</h5>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="section" value="e">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Smoking</label>
+        <select name="smoking" class="form-select">
+          <option value="">—</option>
+          <option {% if p.section_e.smoking == "Never" %}selected{% endif %}>Never</option>
+          <option {% if p.section_e.smoking == "Ex-smoker" %}selected{% endif %}>Ex-smoker</option>
+          <option {% if p.section_e.smoking == "Current smoker" %}selected{% endif %}>Current smoker</option>
+        </select>
+      </div>
+      <div class="col-md-8">
+        <label class="form-label">Smoking Details</label>
+        <input name="smoking_details" class="form-control" value="{{ p.section_e.smoking_details|default_if_none:'' }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Alcohol</label>
+        <select name="alcohol" class="form-select">
+          <option value="">—</option>
+          <option {% if p.section_e.alcohol == "None" %}selected{% endif %}>None</option>
+          <option {% if p.section_e.alcohol == "Occasional" %}selected{% endif %}>Occasional</option>
+          <option {% if p.section_e.alcohol == "Regular" %}selected{% endif %}>Regular</option>
+          <option {% if p.section_e.alcohol == "Heavy" %}selected{% endif %}>Heavy</option>
+        </select>
+      </div>
+      <div class="col-md-8">
+        <label class="form-label">Alcohol Details</label>
+        <input name="alcohol_details" class="form-control" value="{{ p.section_e.alcohol_details|default_if_none:'' }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Diet</label>
+        <select name="diet" class="form-select">
+          <option value="">—</option>
+          <option {% if p.section_e.diet == "Vegetarian" %}selected{% endif %}>Vegetarian</option>
+          <option {% if p.section_e.diet == "Non-vegetarian" %}selected{% endif %}>Non-vegetarian</option>
+          <option {% if p.section_e.diet == "Mixed/Omnivore" %}selected{% endif %}>Mixed/Omnivore</option>
+          <option {% if p.section_e.diet == "Vegan" %}selected{% endif %}>Vegan</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Exercise</label>
+        <select name="exercise" class="form-select">
+          <option value="">—</option>
+          <option {% if p.section_e.exercise == "Sedentary" %}selected{% endif %}>Sedentary</option>
+          <option {% if p.section_e.exercise == "Light" %}selected{% endif %}>Light</option>
+          <option {% if p.section_e.exercise == "Moderate" %}selected{% endif %}>Moderate</option>
+          <option {% if p.section_e.exercise == "Active" %}selected{% endif %}>Active</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Stress Level</label>
+        <select name="stress_level" class="form-select">
+          <option value="">—</option>
+          <option {% if p.section_e.stress_level == "Low" %}selected{% endif %}>Low</option>
+          <option {% if p.section_e.stress_level == "Moderate" %}selected{% endif %}>Moderate</option>
+          <option {% if p.section_e.stress_level == "High" %}selected{% endif %}>High</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary mt-3" type="submit">Save Habits</button>
+  </form>
+</div>
+
+<!-- Section F — Symptoms (read-only) -->
+<div class="section-card">
+  <h5>🩺 Section F — Current Symptoms <small class="text-muted">(auto-filled by intake chat)</small></h5>
+  <div class="row">
+    {% for key, value in p.section_f.items %}
+      {% if value is not None and value != "" %}
+        <div class="col-md-6"><strong>{{ key|title }}:</strong> {{ value }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% if not p.section_b.chief_complaint %}
+    <p class="text-muted mb-0">Complete the symptom chat to auto-fill this section.</p>
+  {% endif %}
+</div>
+
+<!-- Visit history -->
+{% if visits %}
+<div class="section-card">
+  <h5>📅 Visit History ({{ visits|length }})</h5>
+  {% for v in visits %}
+    <div class="border-bottom py-2">
+      <strong>{{ v.visit_code }} — {{ v.created_at|date:"Y-m-d" }}</strong>
+      {% if v.chief_complaint %}<div>Chief complaint: {{ v.chief_complaint }}</div>{% endif %}
+      {% if v.diagnosis %}<div>🩺 Diagnosis: {{ v.diagnosis }}</div>{% endif %}
+      {% if v.prescription %}<div>💊 Prescription: {{ v.prescription }}</div>{% endif %}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

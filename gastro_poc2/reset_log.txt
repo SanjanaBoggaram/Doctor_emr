@@ -1,0 +1,36 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20260625003654
+Username: DESKTOP-27CQS1I\user
+RunAs User: DESKTOP-27CQS1I\user
+Configuration Name: 
+Machine: DESKTOP-27CQS1I (Microsoft Windows NT 10.0.19045.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File d:\Doctor_project\Doctor project\gastro_poc2\reset_pg_password.ps1
+Process ID: 12688
+PSVersion: 5.1.19041.6456
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.19041.6456
+BuildVersion: 10.0.19041.6456
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+1) Backing up pg_hba.conf -> pg_hba.conf.bak
+2) Switching local auth to 'trust' (temporary)
+3) Restarting PostgreSQL service
+4) Applying changes (set postgres password, create app role + db)
+ALTER ROLE
+DO
+CREATE DATABASE
+GRANT
+5) Restoring original pg_hba.conf and restarting
+
+DONE.
+  postgres password is now: postgres
+  database 'gastro' owned by role 'gastro' is ready (matches your .env).
+  Next:  python manage.py migrate ; python manage.py seed_doctor ; python manage.py runserver
+**********************
+Windows PowerShell transcript end
+End time: 20260625003708
+**********************
