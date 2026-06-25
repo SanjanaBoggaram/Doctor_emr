@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}My Visits{% endblock %}
+{% block content %}
+<h3>📅 My Visits</h3>
+<p class="text-muted">Your past visits, most recent first. Click one to see the full details.</p>
+
+{% if not visits %}
+  <div class="alert alert-info">
+    No visits yet. Head to the <a href="{% url 'emr:patient_chat' %}">Symptom Chat</a> to complete your first intake.
+  </div>
+{% else %}
+<div class="accordion" id="visitAcc">
+  {% for v, bubbles in visits %}
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button"
+                data-bs-toggle="collapse" data-bs-target="#visit{{ v.pk }}">
+          <div class="d-flex justify-content-between w-100 me-3">
+            <span><strong>{{ v.visit_code }}</strong> · {{ v.created_at|date:"d M Y, H:i" }}
+              {% if v.chief_complaint %}— {{ v.chief_complaint }}{% endif %}</span>
+            {% if v.has_prescription %}
+              <span class="badge bg-success align-self-center">Reviewed by doctor</span>
+            {% else %}
+              <span class="badge bg-secondary align-self-center">Awaiting doctor</span>
+            {% endif %}
+          </div>
+        </button>
+      </h2>
+      <div id="visit{{ v.pk }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+           data-bs-parent="#visitAcc">
+        <div class="accordion-body">
+
+          <!-- Chief complaint + onset -->
+          <h6 class="text-uppercase text-muted small">Chief complaint</h6>
+          <p>{{ v.chief_complaint|default:"—" }}
+            {% if v.intake_data.duration %}<span class="text-muted">· duration: {{ v.intake_data.duration }}</span>{% endif %}
+            {% if v.intake_data.onset %}<span class="text-muted">· onset: {{ v.intake_data.onset }}</span>{% endif %}
+          </p>
+
+          <!-- Symptom details -->
+          {% if v.intake_data.section_f %}
+            <h6 class="text-uppercase text-muted small mt-3">Symptom details</h6>
+            <div class="row">
+              {% for key, value in v.intake_data.section_f.items %}
+                {% if value is not None and value != "" %}
+                  <div class="col-md-6 small"><strong>{{ key|title }}:</strong> {{ value }}</div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <!-- Doctor's diagnosis + prescription -->
+          <h6 class="text-uppercase text-muted small mt-3">Doctor's prescription</h6>
+          {% include "emr/_prescription.html" with v=v %}
+
+          <!-- Intake chat -->
+          <div class="mt-3">
+            <button class="btn btn-sm btn-outline-secondary" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#chat{{ v.pk }}">
+              💬 View intake conversation
+            </button>
+            <div id="chat{{ v.pk }}" class="collapse mt-2">
+              {% for b in bubbles %}
+                <div class="bubble {{ b.role }}">{{ b.content }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

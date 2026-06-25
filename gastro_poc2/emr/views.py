@@ -10,6 +10,7 @@ from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Max
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -101,6 +102,9 @@ def _render_messages(request):
 
 @patient_required
 def patient_chat(request):
+    # First-time patients fill (or skip) their bio-data before the intake chat.
+    if not request.user.profile.onboarded:
+        return redirect("emr:onboarding")
     _ensure_greeting(request)
     return render(request, "emr/patient_chat.html", _chat_context(request))
 
@@ -177,10 +181,78 @@ def chat_reset(request):
     return redirect("emr:patient_chat")
 
 
-# ── Patient: EMR form ────────────────────────────────────────────────────────
+# ── Patient: bio-data sections (shared by onboarding + EMR form) ─────────────
 
 def _split_lines(raw: str) -> list:
     return [line.strip() for line in (raw or "").splitlines() if line.strip()]
+
+
+def _section_a(post, current_name):
+    return (
+        {
+            "age": post.get("age") or None,
+            "sex": post.get("sex") or None,
+            "dob": post.get("dob") or None,
+            "phone": post.get("phone") or None,
+            "email": post.get("email") or None,
+            "address": post.get("address") or None,
+            "occupation": post.get("occupation") or None,
+            "marital_status": post.get("marital_status") or None,
+        },
+        post.get("full_name") or current_name,
+    )
+
+
+def _section_c(post):
+    return {
+        "chronic_conditions": _split_lines(post.get("chronic_conditions")),
+        "past_surgeries": _split_lines(post.get("past_surgeries")),
+        "past_hospitalizations": _split_lines(post.get("past_hospitalizations")),
+        "current_medications": _split_lines(post.get("current_medications")),
+        "allergies": _split_lines(post.get("allergies")),
+        "previous_gi_issues": _split_lines(post.get("previous_gi_issues")),
+    }
+
+
+def _section_d(post):
+    return {
+        "father": post.get("father") or None,
+        "mother": post.get("mother") or None,
+        "siblings": post.get("siblings") or None,
+        "gi_cancers": post.get("gi_cancers") or None,
+        "other_relevant": post.get("other_relevant") or None,
+    }
+
+
+def _section_e(post):
+    return {
+        "smoking": post.get("smoking") or None,
+        "smoking_details": post.get("smoking_details") or None,
+        "alcohol": post.get("alcohol") or None,
+        "alcohol_details": post.get("alcohol_details") or None,
+        "diet": post.get("diet") or None,
+        "exercise": post.get("exercise") or None,
+        "stress_level": post.get("stress_level") or None,
+    }
+
+
+@patient_required
+def onboarding(request):
+    """First-login bio-data form (sections A, C, D, E in one page). Skippable."""
+    profile = request.user.profile
+
+    if request.method == "POST":
+        if request.POST.get("action") != "skip":
+            profile.section_a, profile.full_name = _section_a(request.POST, profile.full_name)
+            profile.section_c = _section_c(request.POST)
+            profile.section_d = _section_d(request.POST)
+            profile.section_e = _section_e(request.POST)
+            messages.success(request, "Thanks! Your details are saved. Now let's talk symptoms.")
+        profile.onboarded = True
+        profile.save()
+        return redirect("emr:patient_chat")
+
+    return render(request, "emr/onboarding.html", {"p": profile})
 
 
 @patient_required
@@ -190,44 +262,13 @@ def emr_view(request):
     if request.method == "POST":
         section = request.POST.get("section")
         if section == "a":
-            profile.section_a = {
-                "age": request.POST.get("age") or None,
-                "sex": request.POST.get("sex") or None,
-                "dob": request.POST.get("dob") or None,
-                "phone": request.POST.get("phone") or None,
-                "email": request.POST.get("email") or None,
-                "address": request.POST.get("address") or None,
-                "occupation": request.POST.get("occupation") or None,
-                "marital_status": request.POST.get("marital_status") or None,
-            }
-            profile.full_name = request.POST.get("full_name") or profile.full_name
+            profile.section_a, profile.full_name = _section_a(request.POST, profile.full_name)
         elif section == "c":
-            profile.section_c = {
-                "chronic_conditions": _split_lines(request.POST.get("chronic_conditions")),
-                "past_surgeries": _split_lines(request.POST.get("past_surgeries")),
-                "past_hospitalizations": _split_lines(request.POST.get("past_hospitalizations")),
-                "current_medications": _split_lines(request.POST.get("current_medications")),
-                "allergies": _split_lines(request.POST.get("allergies")),
-                "previous_gi_issues": _split_lines(request.POST.get("previous_gi_issues")),
-            }
+            profile.section_c = _section_c(request.POST)
         elif section == "d":
-            profile.section_d = {
-                "father": request.POST.get("father") or None,
-                "mother": request.POST.get("mother") or None,
-                "siblings": request.POST.get("siblings") or None,
-                "gi_cancers": request.POST.get("gi_cancers") or None,
-                "other_relevant": request.POST.get("other_relevant") or None,
-            }
+            profile.section_d = _section_d(request.POST)
         elif section == "e":
-            profile.section_e = {
-                "smoking": request.POST.get("smoking") or None,
-                "smoking_details": request.POST.get("smoking_details") or None,
-                "alcohol": request.POST.get("alcohol") or None,
-                "alcohol_details": request.POST.get("alcohol_details") or None,
-                "diet": request.POST.get("diet") or None,
-                "exercise": request.POST.get("exercise") or None,
-                "stress_level": request.POST.get("stress_level") or None,
-            }
+            profile.section_e = _section_e(request.POST)
         profile.save()
         messages.success(request, "Saved.")
         return redirect("emr:emr_view")
@@ -239,20 +280,64 @@ def emr_view(request):
     )
 
 
+# ── Patient: visit history ───────────────────────────────────────────────────
+
+def _parse_transcript(text: str) -> list:
+    """Turn the stored 'USER:/ASSISTANT:' transcript into chat bubbles, hiding
+    the INTAKE_COMPLETE block."""
+    bubbles = []
+    role = None
+    buf = []
+
+    def flush():
+        if role and buf:
+            content = "\n".join(buf).strip()
+            if role == "assistant":
+                content = _display_content(content)
+            if content:
+                bubbles.append({"role": role, "content": content})
+
+    for line in (text or "").splitlines():
+        if line.startswith("USER:"):
+            flush(); role, buf = "user", [line[5:].strip()]
+        elif line.startswith("ASSISTANT:"):
+            flush(); role, buf = "assistant", [line[10:].strip()]
+        else:
+            buf.append(line)
+    flush()
+    return bubbles
+
+
+@patient_required
+def visit_list(request):
+    visits = request.user.profile.visits.all()  # newest first (model Meta ordering)
+    return render(
+        request,
+        "emr/visits.html",
+        {"visits": [(v, _parse_transcript(v.chat_transcript)) for v in visits]},
+    )
+
+
 # ── Doctor: dashboard ────────────────────────────────────────────────────────
 
 @doctor_required
 def doctor_dashboard(request):
-    patients = PatientProfile.objects.select_related("user").all()
+    # All patients, most-recently-active first (patients with no visit sink to the bottom).
+    patients = (
+        PatientProfile.objects.select_related("user")
+        .annotate(last_visit=Max("visits__created_at"))
+        .order_by("-last_visit", "-updated_at")
+    )
+
     selected_id = request.GET.get("patient")
     selected = None
     latest = None
     if selected_id:
         selected = get_object_or_404(PatientProfile, pk=selected_id)
-        latest = selected.visits.first()  # ordered -created_at
     elif patients:
-        selected = patients.first()
-        latest = selected.visits.first()
+        selected = patients.first()  # most recently active
+    if selected:
+        latest = selected.visits.first()  # newest visit (model Meta ordering)
 
     return render(
         request,
@@ -261,12 +346,44 @@ def doctor_dashboard(request):
     )
 
 
+def _parse_prescription(post) -> dict:
+    """Build the structured prescription dict from the doctor's form POST."""
+    names = post.getlist("med_name")
+    types = post.getlist("med_type")
+    schedules = post.getlist("med_schedule")
+    durations = post.getlist("med_duration")
+    instructions = post.getlist("med_instructions")
+
+    medicines = []
+    for i, name in enumerate(names):
+        name = (name or "").strip()
+        if not name:
+            continue  # skip blank rows
+
+        def at(seq):
+            return (seq[i].strip() if i < len(seq) and seq[i] else "")
+
+        medicines.append({
+            "name": name,
+            "type": at(types) or "Tablet",
+            "schedule": at(schedules),
+            "duration": at(durations),
+            "instructions": at(instructions),
+        })
+
+    return {
+        "medicines": medicines,
+        "advice": _split_lines(post.get("advice")),
+        "tests": _split_lines(post.get("tests")),
+    }
+
+
 @doctor_required
 @require_POST
 def visit_update(request, visit_id):
     visit = get_object_or_404(Visit, pk=visit_id)
     visit.diagnosis = request.POST.get("diagnosis", "")
-    visit.prescription = request.POST.get("prescription", "")
+    visit.prescription_data = _parse_prescription(request.POST)
     visit.save()
     messages.success(request, "Saved to patient EMR.")
     return redirect(f"{reverse('emr:doctor_dashboard')}?patient={visit.patient_id}")

@@ -7,14 +7,19 @@
   <div class="alert alert-info">No patients registered yet.</div>
 {% else %}
 <div class="row">
-  <!-- Patient list -->
+  <!-- Patient list (most recently active first) -->
   <div class="col-md-3">
     <div class="section-card p-2">
+      <div class="px-2 pb-2 text-muted small text-uppercase">Patients · recent first</div>
       <div class="list-group list-group-flush">
         {% for pt in patients %}
           <a class="list-group-item list-group-item-action {% if selected and pt.pk == selected.pk %}active{% endif %}"
              href="?patient={{ pt.pk }}">
-            {{ pt.full_name }}<br><small class="text-muted">{{ pt.patient_id }}</small>
+            <div class="fw-semibold">{{ pt.full_name }}</div>
+            <small class="{% if selected and pt.pk == selected.pk %}text-white-50{% else %}text-muted{% endif %}">
+              {{ pt.patient_id }}
+              {% if pt.last_visit %}· last visit {{ pt.last_visit|date:"d M" }}{% else %}· no visits{% endif %}
+            </small>
           </a>
         {% endfor %}
       </div>
@@ -25,28 +30,77 @@
   <div class="col-md-9">
     {% if selected %}
     <div class="row">
-      <!-- Latest visit + AI summary + dx/rx -->
+      <!-- Latest visit + AI summary + prescription editor -->
       <div class="col-lg-7">
         <div class="section-card">
           <h5>Latest Visit — {{ selected.full_name }}</h5>
           {% if not latest %}
             <div class="alert alert-info mb-0">This patient has not completed an intake chat yet.</div>
           {% else %}
-            <div class="text-muted small mb-2">{{ latest.visit_code }} · {{ latest.created_at|date:"Y-m-d H:i" }}</div>
+            <div class="text-muted small mb-2">{{ latest.visit_code }} · {{ latest.created_at|date:"d M Y, H:i" }}</div>
             <div class="mb-3" style="white-space: pre-wrap;">{{ latest.doctor_summary|default:"No AI summary generated for this visit." }}</div>
 
             <hr>
-            <h6>📝 Diagnosis &amp; Prescription</h6>
+            <h6 class="mb-3">📝 Diagnosis &amp; Prescription</h6>
             <form method="post" action="{% url 'emr:visit_update' latest.pk %}">
               {% csrf_token %}
-              <div class="mb-2">
+
+              <div class="mb-3">
                 <label class="form-label">Diagnosis</label>
-                <textarea name="diagnosis" class="form-control" rows="2">{{ latest.diagnosis }}</textarea>
+                <textarea name="diagnosis" class="form-control" rows="2" placeholder="Working diagnosis / impression…">{{ latest.diagnosis }}</textarea>
               </div>
-              <div class="mb-2">
-                <label class="form-label">Prescription / Management Plan</label>
-                <textarea name="prescription" class="form-control" rows="4">{{ latest.prescription }}</textarea>
+
+              <!-- Medicines -->
+              <label class="form-label">💊 Medicines / Ointments</label>
+              <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="min-width:160px">Name</th>
+                      <th>Type</th>
+                      <th title="Morning-Afternoon-Night">Schedule<br><small class="text-muted fw-normal">M-A-N e.g. 1-0-1</small></th>
+                      <th>Duration</th>
+                      <th style="min-width:160px">Instructions</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="med-rows">
+                    {% for m in latest.medicines %}
+                      <tr>
+                        <td><input name="med_name" class="form-control form-control-sm" value="{{ m.name }}"></td>
+                        <td>
+                          <select name="med_type" class="form-select form-select-sm">
+                            <option {% if m.type == "Tablet" %}selected{% endif %}>Tablet</option>
+                            <option {% if m.type == "Capsule" %}selected{% endif %}>Capsule</option>
+                            <option {% if m.type == "Syrup" %}selected{% endif %}>Syrup</option>
+                            <option {% if m.type == "Ointment" %}selected{% endif %}>Ointment</option>
+                            <option {% if m.type == "Injection" %}selected{% endif %}>Injection</option>
+                            <option {% if m.type == "Other" %}selected{% endif %}>Other</option>
+                          </select>
+                        </td>
+                        <td><input name="med_schedule" class="form-control form-control-sm" value="{{ m.schedule }}" placeholder="1-0-1"></td>
+                        <td><input name="med_duration" class="form-control form-control-sm" value="{{ m.duration }}" placeholder="5 days"></td>
+                        <td><input name="med_instructions" class="form-control form-control-sm" value="{{ m.instructions }}" placeholder="after food / blank"></td>
+                        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()">✕</button></td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
               </div>
+              <button type="button" class="btn btn-sm btn-outline-primary mb-3" onclick="addMedRow()">+ Add medicine</button>
+
+              <div class="mb-3">
+                <label class="form-label">📋 Advice <small class="text-muted">— one per line (e.g. "Avoid outside food for a week")</small></label>
+                <textarea name="advice" class="form-control" rows="3">{{ latest.advice|join:"
+" }}</textarea>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">🧪 Tests to be done <small class="text-muted">— one per line</small></label>
+                <textarea name="tests" class="form-control" rows="2">{{ latest.tests|join:"
+" }}</textarea>
+              </div>
+
               <button class="btn btn-primary" type="submit">💾 Save to EMR</button>
             </form>
 
@@ -66,43 +120,39 @@
         </div>
       </div>
 
-      <!-- Full EMR -->
+      <!-- Full EMR + visit history -->
       <div class="col-lg-5">
         <div class="section-card">
           <h5>📋 Full EMR</h5>
           {% with a=selected.section_a %}
-          <p class="mb-1"><strong>Personal:</strong> Age {{ a.age|default:"—" }}, {{ a.sex|default:"—" }},
-             {{ a.occupation|default:"—" }}</p>
+          <p class="mb-1"><strong>Personal:</strong> Age {{ a.age|default:"—" }}, {{ a.sex|default:"—" }}, {{ a.occupation|default:"—" }}</p>
+          <p class="mb-1"><strong>Contact:</strong> {{ a.phone|default:"—" }}</p>
           {% endwith %}
           {% with c=selected.section_c %}
           <p class="mb-1"><strong>Conditions:</strong> {{ c.chronic_conditions|join:", "|default:"—" }}</p>
           <p class="mb-1"><strong>Medications:</strong> {{ c.current_medications|join:", "|default:"—" }}</p>
           <p class="mb-1"><strong>Allergies:</strong> {{ c.allergies|join:", "|default:"—" }}</p>
+          <p class="mb-1"><strong>Prev GI issues:</strong> {{ c.previous_gi_issues|join:", "|default:"—" }}</p>
+          {% endwith %}
+          {% with d=selected.section_d %}
+          <p class="mb-1"><strong>Family GI cancers:</strong> {{ d.gi_cancers|default:"—" }}</p>
           {% endwith %}
           {% with e=selected.section_e %}
-          <p class="mb-1"><strong>Habits:</strong> Smoking {{ e.smoking|default:"—" }}, Alcohol {{ e.alcohol|default:"—" }}</p>
+          <p class="mb-1"><strong>Habits:</strong> Smoking {{ e.smoking|default:"—" }}, Alcohol {{ e.alcohol|default:"—" }}, Diet {{ e.diet|default:"—" }}</p>
           {% endwith %}
+        </div>
 
-          <hr>
-          <strong>Symptoms (F):</strong>
-          <div class="row">
-            {% for key, value in selected.section_f.items %}
-              {% if value is not None and value != "" %}
-                <div class="col-12 small"><strong>{{ key|title }}:</strong> {{ value }}</div>
-              {% endif %}
-            {% endfor %}
-          </div>
-
-          {% if selected.visits.all %}
-          <hr>
-          <strong>All Visits ({{ selected.visits.all|length }})</strong>
+        <div class="section-card">
+          <h5>📅 Visit History ({{ selected.visits.all|length }})</h5>
           {% for v in selected.visits.all %}
-            <div class="small border-bottom py-1">
-              {{ v.visit_code }} — {{ v.created_at|date:"Y-m-d" }}
-              {% if v.diagnosis %}<br>Dx: {{ v.diagnosis }}{% endif %}
+            <div class="border rounded p-2 mb-2">
+              <div class="fw-semibold">{{ v.visit_code }} — {{ v.created_at|date:"d M Y" }}</div>
+              {% if v.chief_complaint %}<div class="small text-muted mb-1">{{ v.chief_complaint }}</div>{% endif %}
+              {% include "emr/_prescription.html" with v=v %}
             </div>
+          {% empty %}
+            <p class="text-muted mb-0">No visits.</p>
           {% endfor %}
-          {% endif %}
         </div>
       </div>
     </div>
@@ -110,4 +160,35 @@
   </div>
 </div>
 {% endif %}
+
+<!-- Blank medicine row template for the "+ Add medicine" button -->
+<template id="med-row-template">
+  <tr>
+    <td><input name="med_name" class="form-control form-control-sm"></td>
+    <td>
+      <select name="med_type" class="form-select form-select-sm">
+        <option>Tablet</option><option>Capsule</option><option>Syrup</option>
+        <option>Ointment</option><option>Injection</option><option>Other</option>
+      </select>
+    </td>
+    <td><input name="med_schedule" class="form-control form-control-sm" placeholder="1-0-1"></td>
+    <td><input name="med_duration" class="form-control form-control-sm" placeholder="5 days"></td>
+    <td><input name="med_instructions" class="form-control form-control-sm" placeholder="after food / blank"></td>
+    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()">✕</button></td>
+  </tr>
+</template>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function addMedRow() {
+    var tpl = document.getElementById('med-row-template');
+    document.getElementById('med-rows').appendChild(tpl.content.cloneNode(true));
+  }
+  // Start with one empty row if the patient has no medicines yet.
+  document.addEventListener('DOMContentLoaded', function () {
+    var body = document.getElementById('med-rows');
+    if (body && body.children.length === 0) addMedRow();
+  });
+</script>
 {% endblock %}

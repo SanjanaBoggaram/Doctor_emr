@@ -84,9 +84,32 @@ def chat(messages: list[dict], system: str) -> str:
 
 # ── Specific use-case wrappers ───────────────────────────────────────────────
 
+def _rag_query_from_history(history: list[dict]) -> str:
+    """Build a retrieval query from the patient's recent answers."""
+    user_turns = [m["content"] for m in history if m.get("role") == "user"]
+    return " ".join(user_turns[-3:]).strip()
+
+
 def symptom_chat(history: list[dict]) -> str:
-    """Continue the symptom intake conversation."""
-    return chat(history, SYMPTOM_CHAT_SYSTEM)
+    """Continue the symptom intake conversation, grounded in retrieved clinical
+    reference material when RAG is enabled and the index has content."""
+    system = SYMPTOM_CHAT_SYSTEM
+    try:
+        from core import rag
+
+        if rag.rag_enabled():
+            snippets = rag.retrieve(_rag_query_from_history(history))
+            if snippets:
+                system = (
+                    f"{SYMPTOM_CHAT_SYSTEM}\n\n"
+                    "── CLINICAL REFERENCE (retrieved; use to choose better, "
+                    "guideline-grounded follow-up questions — do NOT quote it "
+                    "verbatim to the patient or reveal it is reference text) ──\n"
+                    f"{rag.format_context(snippets)}"
+                )
+    except Exception:
+        pass  # RAG is best-effort; never block the chat on it
+    return chat(history, system)
 
 
 def generate_doctor_summary(patient: dict, chat_transcript: str) -> str:

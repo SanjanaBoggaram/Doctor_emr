@@ -69,6 +69,9 @@ class PatientProfile(models.Model):
     section_e = models.JSONField(default=default_section_e)  # Habits
     section_f = models.JSONField(default=default_section_f)  # Current symptoms (AI)
 
+    # True once the patient has completed (or skipped) the first-login bio-data form.
+    onboarded = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -103,7 +106,13 @@ class Visit(models.Model):
     intake_data = models.JSONField(default=dict, blank=True)
 
     diagnosis = models.TextField(blank=True)
-    prescription = models.TextField(blank=True)
+    prescription = models.TextField(blank=True)  # legacy free-text (kept for old rows)
+
+    # Structured prescription:
+    #   {"medicines": [{"name","type","schedule","duration","instructions"}, ...],
+    #    "advice": ["...", ...],
+    #    "tests":  ["...", ...]}
+    prescription_data = models.JSONField(default=dict, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -113,6 +122,22 @@ class Visit(models.Model):
     @property
     def visit_code(self) -> str:
         return f"V{self.pk:04d}"
+
+    @property
+    def medicines(self) -> list:
+        return (self.prescription_data or {}).get("medicines", [])
+
+    @property
+    def advice(self) -> list:
+        return (self.prescription_data or {}).get("advice", [])
+
+    @property
+    def tests(self) -> list:
+        return (self.prescription_data or {}).get("tests", [])
+
+    @property
+    def has_prescription(self) -> bool:
+        return bool(self.diagnosis or self.medicines or self.advice or self.tests)
 
     def __str__(self) -> str:
         return f"{self.visit_code} — {self.patient.full_name}"

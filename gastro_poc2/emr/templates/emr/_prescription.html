@@ -1,0 +1,40 @@
+{# Renders a Visit's diagnosis + structured prescription read-only. Expects `v`. #}
+{% if v.has_prescription %}
+  {% if v.diagnosis %}
+    <p class="mb-2"><strong>🩺 Diagnosis:</strong> {{ v.diagnosis }}</p>
+  {% endif %}
+
+  {% if v.medicines %}
+    <strong>💊 Medicines</strong>
+    <div class="table-responsive mb-2">
+      <table class="table table-sm table-bordered align-middle mb-1">
+        <thead class="table-light">
+          <tr><th>Medicine</th><th>Type</th><th>Schedule<br><small class="text-muted fw-normal">M-A-N</small></th><th>Duration</th><th>Instructions</th></tr>
+        </thead>
+        <tbody>
+          {% for m in v.medicines %}
+            <tr>
+              <td>{{ m.name }}</td>
+              <td>{{ m.type|default:"—" }}</td>
+              <td>{{ m.schedule|default:"—" }}</td>
+              <td>{{ m.duration|default:"—" }}</td>
+              <td>{{ m.instructions|default:"—" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {% if v.advice %}
+    <strong>📋 Advice</strong>
+    <ul class="mb-2">{% for a in v.advice %}<li>{{ a }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  {% if v.tests %}
+    <strong>🧪 Tests to be done</strong>
+    <ul class="mb-2">{% for t in v.tests %}<li>{{ t }}</li>{% endfor %}</ul>
+  {% endif %}
+{% else %}
+  <p class="text-muted mb-0">No prescription recorded yet — the doctor will review this visit.</p>
+{% endif %}

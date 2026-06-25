@@ -52,6 +52,30 @@ lose Postgres-specific JSONB indexing, but everything else works identically.)
 - **Patients:** register via the "Create an account" link on the login page
 - **Superuser (full admin):** `python manage.py createsuperuser`
 
+## RAG — grounding the intake agent
+
+The symptom-intake agent can retrieve clinical reference material to ask better,
+guideline-grounded follow-up questions.
+
+```bash
+# 1. Put reference docs (.txt / .md / .pdf) in rag_data/  (a sample is included)
+# 2. Build the index (uses local, offline embeddings — no API key)
+python manage.py build_rag
+# 3. Enable it in .env
+RAG_ENABLED=true
+```
+
+- Vector store: **Chroma** (persistent, in `rag_store/`).
+- Embeddings: **local ONNX `all-MiniLM-L6-v2`** by default (offline, free). Switch
+  to Gemini with `RAG_EMBED_PROVIDER=gemini` + `GEMINI_API_KEY` for higher quality.
+- Rebuild with `build_rag` whenever you change `rag_data/`. If RAG is disabled or
+  the index is empty, the chat falls back to working exactly as before.
+
+> **Use the project venv.** RAG's native deps (`chromadb`, `onnxruntime`) live in
+> `.venv` to avoid clashing with system packages — run `.venv\Scripts\python manage.py …`.
+> On Windows, local onnxruntime requires the **VC++ 2015–2022 x64 runtime**
+> (`vc_redist.x64.exe`); an outdated one causes a DLL-load or segfault error.
+
 ## What changed vs the Streamlit POC
 
 | POC1 (Streamlit)            | POC2 (Django + Postgres)                      |

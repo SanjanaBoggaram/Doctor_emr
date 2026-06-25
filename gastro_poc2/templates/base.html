@@ -25,6 +25,7 @@
         {% if user.is_authenticated %}
           {% if user.is_patient %}
             <a class="nav-link" href="{% url 'emr:patient_chat' %}">Symptom Chat</a>
+            <a class="nav-link" href="{% url 'emr:visit_list' %}">My Visits</a>
             <a class="nav-link" href="{% url 'emr:emr_view' %}">My Record</a>
           {% else %}
             <a class="nav-link" href="{% url 'emr:doctor_dashboard' %}">Dashboard</a>
