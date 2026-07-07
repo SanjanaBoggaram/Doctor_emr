@@ -39,7 +39,7 @@ def _openai_chat(messages: list[dict], system: str) -> str:
         messages=[{"role": "system", "content": system}] + messages,
         temperature=0.3,
     )
-    return response.choices[0].message.content
+    return response.choices[0].message.content or ""
 
 
 def _openrouter_chat(messages: list[dict], system: str) -> str:
@@ -53,8 +53,9 @@ def _openrouter_chat(messages: list[dict], system: str) -> str:
         model=MODEL,
         messages=[{"role": "system", "content": system}] + messages,
         temperature=0.3,
+        max_tokens=1024,
     )
-    return response.choices[0].message.content
+    return response.choices[0].message.content or ""
 
 
 def _anthropic_chat(messages: list[dict], system: str) -> str:
@@ -90,25 +91,37 @@ def _rag_query_from_history(history: list[dict]) -> str:
     return " ".join(user_turns[-3:]).strip()
 
 
-def symptom_chat(history: list[dict]) -> str:
-    """Continue the symptom intake conversation, grounded in retrieved clinical
-    reference material when RAG is enabled and the index has content."""
+def symptom_chat(history: list[dict], patient_context: str = "") -> str:
+    """Continue the symptom intake conversation.
+
+    The system prompt is augmented with (a) the patient's known background so the
+    agent can tailor questions and avoid re-asking what's on file, and (b) any
+    retrieved clinical reference material (RAG) when enabled.
+    """
     system = SYMPTOM_CHAT_SYSTEM
+
+    if patient_context:
+        system += (
+            "\n\n── PATIENT BACKGROUND (already on file — use it to ask relevant, "
+            "targeted questions and DO NOT re-ask what is already known here) ──\n"
+            f"{patient_context}"
+        )
+
     try:
         from core import rag
 
         if rag.rag_enabled():
             snippets = rag.retrieve(_rag_query_from_history(history))
             if snippets:
-                system = (
-                    f"{SYMPTOM_CHAT_SYSTEM}\n\n"
-                    "── CLINICAL REFERENCE (retrieved; use to choose better, "
+                system += (
+                    "\n\n── CLINICAL REFERENCE (retrieved; use to choose better, "
                     "guideline-grounded follow-up questions — do NOT quote it "
                     "verbatim to the patient or reveal it is reference text) ──\n"
                     f"{rag.format_context(snippets)}"
                 )
     except Exception:
         pass  # RAG is best-effort; never block the chat on it
+
     return chat(history, system)
 
 

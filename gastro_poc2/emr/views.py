@@ -7,6 +7,7 @@ structured fields) and fold the extracted symptoms back into the patient's EMR.
 """
 
 from functools import wraps
+import re
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -22,15 +23,13 @@ from .models import PatientProfile, Visit
 CHAT_SESSION_KEY = "intake_chat_history"
 INTAKE_DONE_KEY = "intake_done"
 
+_MCQ_LABEL_RE = re.compile(r"\b([A-D]|[1-4])\b", re.IGNORECASE)
+_OPTION_LINE_RE = re.compile(r"^\s*([A-D]|[1-4])[\).:\-]\s*(.+?)\s*$", re.IGNORECASE)
+
 GREETING = (
     "Hello {name}! I'm the clinic's intake assistant. I'll ask you a few questions "
     "about what brought you in today so the doctor is prepared for your visit.\n\n"
-    "**What is the main reason for your visit today?**\n\n"
-    "A) Abdominal / stomach pain\n"
-    "B) Nausea or vomiting\n"
-    "C) Heartburn or acid reflux\n"
-    "D) Bowel changes (diarrhea, constipation)\n"
-    "E) Other (please describe briefly)"
+    "**Could you please state the purpose of your visit and describe your symptoms?**"
 )
 
 
@@ -67,14 +66,58 @@ def home(request):
 # ── Patient: intake chat ─────────────────────────────────────────────────────
 
 def _display_content(content: str) -> str:
-    """Hide the raw INTAKE_COMPLETE / JSON block from the patient view."""
+    """Hide the raw INTAKE_COMPLETE / JSON block and filter thinking text from the patient view."""
     if "INTAKE_COMPLETE" in content:
         shown = content.split("INTAKE_COMPLETE")[0].strip()
         return shown or (
             "Thank you, I have all the information needed. "
             "The doctor will review your answers shortly."
         )
-    return content
+    
+    # Strip internal reasoning: lines that read like thinking/deliberation, not questions
+    lines = content.split('\n')
+    filtered = []
+    for line in lines:
+        stripped = line.strip()
+        # Skip thinking patterns: lines starting with deliberation words or listing fields
+        if stripped and re.match(
+            r'^(We |Let\'s |I |Check |So |This |That |Here|Also |Now |Next |Then |'
+            r'Duration|Onset|Abdominal|Pain|Nausea|Vomiting|Heartburn|Bowel|Stool|'
+            r'Blood|Rectal|Jaundice|Weight|Appetite|Fever|Only |Still |Need|Have|Can|'
+            r'\-\s+\w+:|\d+\.|^\s*[a-z]+:)',
+            stripped, re.IGNORECASE
+        ):
+            continue
+        filtered.append(line)
+    
+    result = '\n'.join(filtered).strip()
+    return result if result else content
+
+
+def _normalize_mcq_reply(user_text: str, history: list[dict]) -> str:
+    """Expand short MCQ replies into explicit selections for the model."""
+    if not history:
+        return user_text
+
+    last_assistant = next((m.get("content", "") for m in reversed(history) if m.get("role") == "assistant"), "")
+    if not last_assistant:
+        return user_text
+
+    labels = [match.group(1).upper() for match in _MCQ_LABEL_RE.finditer(user_text)]
+    if not labels:
+        return user_text
+
+    selected_label = labels[-1]
+    option_map: dict[str, str] = {}
+    for line in last_assistant.splitlines():
+        match = _OPTION_LINE_RE.match(line)
+        if match:
+            option_map[match.group(1).upper()] = match.group(2).strip()
+
+    selected_text = option_map.get(selected_label)
+    if selected_text:
+        return f"Selected option {selected_label}: {selected_text}"
+    return f"Selected option {selected_label}"
 
 
 def _ensure_greeting(request):
@@ -122,12 +165,20 @@ def chat_send(request):
         return _render_messages(request)
 
     history = _ensure_greeting(request)
-    history.append({"role": "user", "content": user_text})
+    normalized_user_text = _normalize_mcq_reply(user_text, history)
+    if normalized_user_text != user_text:
+        normalized_user_text = f"{normalized_user_text} (user said: {user_text})"
+    history.append({"role": "user", "content": normalized_user_text})
 
     try:
-        reply = symptom_chat(history)
+        reply = symptom_chat(history, patient_context=request.user.profile.brief())
     except Exception as exc:  # surface provider/config errors to the patient
         reply = f"Sorry — the assistant is unavailable right now. ({exc})"
+
+    # Some models (esp. MoE/reasoning ones via OpenRouter) occasionally return
+    # empty/None content for a turn — don't crash, just ask the patient to retry.
+    if not reply or not reply.strip():
+        reply = "Sorry, I didn't quite catch that — could you rephrase or add a little more detail?"
 
     history.append({"role": "assistant", "content": reply})
     request.session[CHAT_SESSION_KEY] = history

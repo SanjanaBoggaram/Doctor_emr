@@ -18,11 +18,12 @@
       hx-post="{% url 'emr:chat_send' %}"
       hx-target="#chat-window"
       hx-swap="innerHTML"
-      hx-on::after-request="this.reset(); document.getElementById('chat-input').focus(); var w=document.getElementById('chat-window'); w.scrollTop=w.scrollHeight;"
+    hx-on::before-request="window.chatBeforeRequest(event)"
+    hx-on::after-request="window.chatAfterRequest(event)"
       class="input-group">
   {% csrf_token %}
   <input id="chat-input" name="message" class="form-control" placeholder="Type your answer here…"
-         autocomplete="off" {% if intake_done %}disabled{% endif %} autofocus>
+     autocomplete="off" required {% if intake_done %}disabled{% endif %} autofocus>
   <button class="btn btn-primary" type="submit" {% if intake_done %}disabled{% endif %}>Send</button>
 </form>
 
@@ -33,6 +34,51 @@
 
 {% block extra_js %}
 <script>
+  function chatBeforeRequest(event) {
+    var form = event.target;
+    var input = document.getElementById('chat-input');
+    var chatWindow = document.getElementById('chat-window');
+    var submitButton = form.querySelector('button[type="submit"]');
+    var message = input.value.trim();
+
+    if (!message) return;
+
+    var pendingBubble = document.createElement('div');
+    pendingBubble.className = 'bubble user';
+    pendingBubble.textContent = message;
+    pendingBubble.dataset.pendingMessage = 'true';
+    chatWindow.appendChild(pendingBubble);
+
+    var typingIndicator = document.createElement('div');
+    typingIndicator.id = 'chat-typing-indicator';
+    typingIndicator.className = 'bubble assistant d-flex align-items-center gap-2';
+    typingIndicator.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span>Assistant is typing...</span>';
+    chatWindow.appendChild(typingIndicator);
+
+    chatWindow.setAttribute('aria-busy', 'true');
+    input.disabled = true;
+    if (submitButton) submitButton.disabled = true;
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function chatAfterRequest(event) {
+    var form = event.target;
+    var input = document.getElementById('chat-input');
+    var chatWindow = document.getElementById('chat-window');
+    var submitButton = form.querySelector('button[type="submit"]');
+    var typingIndicator = document.getElementById('chat-typing-indicator');
+
+    if (typingIndicator) typingIndicator.remove();
+    if (chatWindow) chatWindow.removeAttribute('aria-busy');
+    if (input) {
+      input.disabled = false;
+      input.value = '';
+      input.focus();
+    }
+    if (submitButton) submitButton.disabled = false;
+    if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
   // Keep the chat scrolled to the latest message on load.
   window.addEventListener('load', function () {
     var w = document.getElementById('chat-window');

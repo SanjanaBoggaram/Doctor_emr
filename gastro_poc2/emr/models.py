@@ -92,6 +92,53 @@ class PatientProfile(models.Model):
             "section_f": self.section_f,
         }
 
+    def brief(self) -> str:
+        """A concise, plain-text background summary for the intake agent — so it
+        can tailor questions and avoid re-asking what's already on file.
+        Returns "" when nothing is known (e.g. a patient who skipped onboarding)."""
+        a, c, d, e = (self.section_a or {}, self.section_c or {},
+                      self.section_d or {}, self.section_e or {})
+        lines = []
+
+        demo = [str(x) for x in (
+            f"{a['age']}y" if a.get("age") else None,
+            a.get("sex"), a.get("occupation"),
+        ) if x]
+        if demo:
+            lines.append("Demographics: " + ", ".join(demo))
+
+        for label, key in [
+            ("Chronic conditions", "chronic_conditions"),
+            ("Current medications", "current_medications"),
+            ("Allergies", "allergies"),
+            ("Past surgeries", "past_surgeries"),
+            ("Previous GI issues", "previous_gi_issues"),
+        ]:
+            vals = c.get(key) or []
+            if vals:
+                lines.append(f"{label}: " + ", ".join(str(v) for v in vals))
+
+        fam = [f"{k}: {d[k]}" for k in ("father", "mother", "siblings") if d.get(k)]
+        if d.get("gi_cancers") and d["gi_cancers"] not in ("No", "Unknown"):
+            fam.append(f"family GI cancers: {d['gi_cancers']}")
+        if d.get("other_relevant"):
+            fam.append(str(d["other_relevant"]))
+        if fam:
+            lines.append("Family history: " + "; ".join(fam))
+
+        hab = [f"{label} {e[key]}" for label, key in
+               [("smoking", "smoking"), ("alcohol", "alcohol"), ("diet", "diet")]
+               if e.get(key)]
+        if hab:
+            lines.append("Habits: " + ", ".join(hab))
+
+        dx = [f"{v.created_at:%Y-%m-%d}: {v.diagnosis}"
+              for v in self.visits.all() if v.diagnosis]
+        if dx:
+            lines.append("Past diagnoses: " + " | ".join(dx[:5]))
+
+        return "\n".join(f"- {ln}" for ln in lines)
+
     def __str__(self) -> str:
         return f"{self.full_name} ({self.patient_id})"
 

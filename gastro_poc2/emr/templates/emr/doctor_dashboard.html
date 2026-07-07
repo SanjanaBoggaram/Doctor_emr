@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load emr_extras %}
 {% block title %}Doctor Dashboard{% endblock %}
 {% block content %}
 <h3>🩺 Doctor Dashboard</h3>
@@ -91,14 +92,12 @@
 
               <div class="mb-3">
                 <label class="form-label">📋 Advice <small class="text-muted">— one per line (e.g. "Avoid outside food for a week")</small></label>
-                <textarea name="advice" class="form-control" rows="3">{{ latest.advice|join:"
-" }}</textarea>
+                <textarea name="advice" class="form-control" rows="3">{{ latest.advice|lines }}</textarea>
               </div>
 
               <div class="mb-3">
                 <label class="form-label">🧪 Tests to be done <small class="text-muted">— one per line</small></label>
-                <textarea name="tests" class="form-control" rows="2">{{ latest.tests|join:"
-" }}</textarea>
+                <textarea name="tests" class="form-control" rows="2">{{ latest.tests|lines }}</textarea>
               </div>
 
               <button class="btn btn-primary" type="submit">💾 Save to EMR</button>

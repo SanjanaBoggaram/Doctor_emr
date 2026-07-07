@@ -44,6 +44,10 @@ def _top_k() -> int:
         return 4
 
 
+def _debug_enabled() -> bool:
+    return os.getenv("RAG_DEBUG", "false").lower() in ("1", "true", "yes", "on")
+
+
 # ── Embeddings ───────────────────────────────────────────────────────────────
 
 def _embedding_fn():
@@ -162,10 +166,18 @@ def retrieve(query: str, k: int | None = None) -> list[dict]:
         res = col.query(query_texts=[query], n_results=k or _top_k())
         docs = res.get("documents", [[]])[0]
         metas = res.get("metadatas", [[]])[0]
-        return [
+        snippets = [
             {"text": d, "source": (m or {}).get("source", "?")}
             for d, m in zip(docs, metas)
         ]
+        if _debug_enabled() and snippets:
+            print(f"[RAG] query: {query}")
+            for idx, snippet in enumerate(snippets, start=1):
+                preview = snippet["text"].strip().replace("\n", " ")
+                if len(preview) > 500:
+                    preview = preview[:500] + "..."
+                print(f"[RAG] chunk {idx} | source={snippet['source']} | {preview}")
+        return snippets
     except Exception:
         return []
 

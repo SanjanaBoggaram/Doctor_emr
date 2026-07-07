@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load emr_extras %}
 {% block title %}My Health Record{% endblock %}
 {% block content %}
 <h3>📋 My Health Record</h3>
@@ -73,33 +74,27 @@
     <div class="row g-3">
       <div class="col-md-6">
         <label class="form-label">Chronic Conditions</label>
-        <textarea name="chronic_conditions" class="form-control" rows="3">{{ p.section_c.chronic_conditions|join:"
-" }}</textarea>
+        <textarea name="chronic_conditions" class="form-control" rows="3">{{ p.section_c.chronic_conditions|lines }}</textarea>
       </div>
       <div class="col-md-6">
         <label class="form-label">Past Surgeries</label>
-        <textarea name="past_surgeries" class="form-control" rows="3">{{ p.section_c.past_surgeries|join:"
-" }}</textarea>
+        <textarea name="past_surgeries" class="form-control" rows="3">{{ p.section_c.past_surgeries|lines }}</textarea>
       </div>
       <div class="col-md-6">
         <label class="form-label">Current Medications</label>
-        <textarea name="current_medications" class="form-control" rows="3">{{ p.section_c.current_medications|join:"
-" }}</textarea>
+        <textarea name="current_medications" class="form-control" rows="3">{{ p.section_c.current_medications|lines }}</textarea>
       </div>
       <div class="col-md-6">
         <label class="form-label">Allergies</label>
-        <textarea name="allergies" class="form-control" rows="3">{{ p.section_c.allergies|join:"
-" }}</textarea>
+        <textarea name="allergies" class="form-control" rows="3">{{ p.section_c.allergies|lines }}</textarea>
       </div>
       <div class="col-md-6">
         <label class="form-label">Past Hospitalizations</label>
-        <textarea name="past_hospitalizations" class="form-control" rows="2">{{ p.section_c.past_hospitalizations|join:"
-" }}</textarea>
+        <textarea name="past_hospitalizations" class="form-control" rows="2">{{ p.section_c.past_hospitalizations|lines }}</textarea>
       </div>
       <div class="col-md-6">
         <label class="form-label">Previous GI Issues</label>
-        <textarea name="previous_gi_issues" class="form-control" rows="2">{{ p.section_c.previous_gi_issues|join:"
-" }}</textarea>
+        <textarea name="previous_gi_issues" class="form-control" rows="2">{{ p.section_c.previous_gi_issues|lines }}</textarea>
       </div>
     </div>
     <button class="btn btn-primary mt-3" type="submit">Save Medical History</button>
