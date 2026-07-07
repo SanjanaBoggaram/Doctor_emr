@@ -80,7 +80,7 @@ Format:
 - List 3–5 possibilities in order of likelihood based on the symptoms described.
   These are NOT a diagnosis — they are to guide the doctor's examination.
 
-Keep the summary under 400 words. Use clinical language appropriate for a gastroenterologist.
+Keep the summary under 400 words. Please Use clinical language appropriate for a gastroenterologist.
 """
 
 
