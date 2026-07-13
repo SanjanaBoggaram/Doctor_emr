@@ -61,13 +61,17 @@ git push -u origin deploy
 `settings.py` via `RENDER_EXTERNAL_HOSTNAME` — nothing to set unless you add a
 custom domain (then set `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS`).
 
-## 4. Seed the doctor account (once, after first deploy)
+## 4. Doctor account
 
-Render Dashboard → your service → **Shell**:
-```bash
-python manage.py seed_doctor          # doctor / clinic123
-python manage.py createsuperuser      # optional, full /admin
-```
+`build.sh` runs `python manage.py seed_doctor` on every deploy (it's idempotent),
+so the `doctor` / `clinic123` account — which also has `/admin` access
+(`is_staff`) — exists automatically. **No Shell needed** (Render's Shell tab is
+paid-tier only).
+
+To create a full superuser as well, either temporarily add
+`python manage.py createsuperuser --noinput` with `DJANGO_SUPERUSER_*` env vars to
+`build.sh`, or upgrade to a paid instance for Shell access. The `doctor` account
+covers `/admin` for normal use.
 
 ## 5. Verify
 
@@ -83,7 +87,7 @@ python manage.py createsuperuser      # optional, full /admin
 |-----|-------|
 | `DJANGO_SECRET_KEY` | long random string (Render can generate) |
 | `DJANGO_DEBUG` | `False` |
-| `DATABASE_URL` | Supabase pooler URI (port 6543) |
+| `DATABASE_URL` | Supabase Session pooler URI (port 5432) |
 | `AI_PROVIDER` | `openrouter` (or `gemini` \| `openai` \| `anthropic`) |
 | `AI_MODEL` | `nvidia/nemotron-3-nano-30b-a3b` (any OpenRouter model id) |
 | `OPENROUTER_API_KEY` | your OpenRouter key |
