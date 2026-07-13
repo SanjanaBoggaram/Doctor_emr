@@ -85,18 +85,11 @@ def chat(messages: list[dict], system: str) -> str:
 
 # ── Specific use-case wrappers ───────────────────────────────────────────────
 
-def _rag_query_from_history(history: list[dict]) -> str:
-    """Build a retrieval query from the patient's recent answers."""
-    user_turns = [m["content"] for m in history if m.get("role") == "user"]
-    return " ".join(user_turns[-3:]).strip()
-
-
 def symptom_chat(history: list[dict], patient_context: str = "") -> str:
     """Continue the symptom intake conversation.
 
-    The system prompt is augmented with (a) the patient's known background so the
-    agent can tailor questions and avoid re-asking what's on file, and (b) any
-    retrieved clinical reference material (RAG) when enabled.
+    The system prompt is augmented with the patient's known background so the
+    agent can tailor questions and avoid re-asking what's on file.
     """
     system = SYMPTOM_CHAT_SYSTEM
 
@@ -106,21 +99,6 @@ def symptom_chat(history: list[dict], patient_context: str = "") -> str:
             "targeted questions and DO NOT re-ask what is already known here) ──\n"
             f"{patient_context}"
         )
-
-    try:
-        from core import rag
-
-        if rag.rag_enabled():
-            snippets = rag.retrieve(_rag_query_from_history(history))
-            if snippets:
-                system += (
-                    "\n\n── CLINICAL REFERENCE (retrieved; use to choose better, "
-                    "guideline-grounded follow-up questions — do NOT quote it "
-                    "verbatim to the patient or reveal it is reference text) ──\n"
-                    f"{rag.format_context(snippets)}"
-                )
-    except Exception:
-        pass  # RAG is best-effort; never block the chat on it
 
     return chat(history, system)
 

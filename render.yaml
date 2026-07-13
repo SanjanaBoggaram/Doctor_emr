@@ -1,0 +1,33 @@
+# Render Blueprint (lives at REPO ROOT).
+# This is a monorepo: the Django app is in the gastro_poc2/ subfolder, so the
+# service uses rootDir. gastro_poc/ (the old Streamlit POC) is ignored.
+# Database is Supabase (managed Postgres) via DATABASE_URL — no Render DB here.
+services:
+  - type: web
+    name: gastro-emr
+    runtime: python
+    plan: free
+    rootDir: gastro_poc2            # build + run only this subfolder
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.4"
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true          # Render generates a strong secret
+      - key: DATABASE_URL
+        sync: false                  # paste your Supabase pooler URL in the dashboard
+      - key: AI_PROVIDER
+        value: openrouter
+      - key: AI_MODEL
+        value: "nvidia/nemotron-3-nano-30b-a3b"
+      - key: OPENROUTER_API_KEY
+        sync: false                  # paste in the dashboard
+      # ALLOWED_HOSTS / CSRF for *.onrender.com are auto-detected in settings.py.
+      # If you add a custom domain, set these too:
+      # - key: DJANGO_ALLOWED_HOSTS
+      #   sync: false
+      # - key: DJANGO_CSRF_TRUSTED_ORIGINS
+      #   sync: false

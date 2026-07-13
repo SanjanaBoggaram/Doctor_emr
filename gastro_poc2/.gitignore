@@ -4,4 +4,3 @@ __pycache__/
 .venv/
 db.sqlite3
 staticfiles/
-rag_store/        # generated Chroma index — rebuild with `manage.py build_rag`

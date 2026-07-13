@@ -28,18 +28,11 @@ Open http://127.0.0.1:8000/.
 
 ```
 config/    Django project — settings, urls, wsgi/asgi
-core/      framework-agnostic AI engine + prompts + RAG (ported/extended from POC1)
+core/      framework-agnostic AI engine + prompts (ported from POC1)
 accounts/  custom User model (patient/doctor roles), login/register
 emr/       PatientProfile (JSONB sections), Visit, intake chat, doctor dashboard
-rag_data/  source reference docs for RAG (.txt/.md/.pdf) — you edit these
-rag_store/ generated Chroma index (gitignored; rebuild with `manage.py build_rag`)
 templates/ base layout
 ```
-
-> **Run via the project venv (`.venv`), not global Python.** RAG deps
-> (`chromadb`, `onnxruntime`) are installed only in `.venv` to isolate native
-> libraries from the machine's global TensorFlow (which crashed onnxruntime).
-> Use `.venv\Scripts\python.exe manage.py …` (or activate the venv).
 
 - [config/settings.py](config/settings.py) — env-driven; Postgres by default, sqlite via `DB_ENGINE=sqlite`. `AUTH_USER_MODEL = "accounts.User"`.
 - [accounts/models.py](accounts/models.py) — `User(AbstractUser)` with a `role` field; `is_patient` / `is_doctor` properties (doctor also true when `is_staff`).
@@ -78,33 +71,6 @@ LLM errors are caught and surfaced as a chat message rather than 500ing.
 - **Onboarding gate:** `patient_chat` redirects to `onboarding` while `profile.onboarded` is False. The onboarding form (sections A/C/D/E in one page) saves all and sets `onboarded=True`; a "Skip" POST (`action=skip`) just sets the flag. Section-parsing helpers `_section_a/c/d/e` in `emr/views.py` are shared by `onboarding` and `emr_view`.
 - **Patient visits:** `visit_list` renders `visits.html` (Bootstrap accordion); each visit expands to chief complaint, Section-F symptom snapshot from `intake_data`, the parsed chat (`_parse_transcript`, AI differentials hidden), and the doctor's prescription. The AI `doctor_summary` is **doctor-only**, never shown to patients.
 - **Doctor dashboard:** patients listed most-recently-active first (`annotate(last_visit=Max(...))`). Structured prescription editor posts parallel `med_*` lists (+ `advice`/`tests` textareas) to `visit_update`; `_parse_prescription` zips them, skipping blank-name rows. Medicine rows are added/removed client-side via a `<template>` + small JS in the dashboard template.
-
-## RAG (intake-agent retrieval)
-
-Grounds the symptom-intake agent's follow-up questions in clinical reference
-material. Implemented in [core/rag.py](core/rag.py); integrated in
-`core/ai_engine.py → symptom_chat()`.
-
-- **Store:** Chroma `PersistentClient` at `rag_store/`, collection `clinical_kb`.
-- **Embeddings:** Chroma's local ONNX `all-MiniLM-L6-v2` by default (offline, no
-  key). `RAG_EMBED_PROVIDER=gemini` switches to Gemini embeddings (needs `GEMINI_API_KEY`).
-- **Sources:** anything in `rag_data/` (`.txt`/`.md`/`.pdf`, recursive). Chunked
-  paragraph-aware (~900 chars, 150 overlap) with `{source, chunk}` metadata.
-- **Build:** `.venv\Scripts\python manage.py build_rag` (drops + recreates the
-  collection). Re-run after editing `rag_data/`.
-- **Query at chat time:** `_rag_query_from_history()` builds a query from the
-  patient's last ~3 user turns; `retrieve()` returns top-`RAG_TOP_K` (default 4)
-  snippets; they're appended to `SYMPTOM_CHAT_SYSTEM` under a "CLINICAL REFERENCE"
-  header (instructed not to be quoted verbatim to the patient).
-- **Fail-safe:** `retrieve()` and the `symptom_chat` integration swallow all
-  errors and `RAG_ENABLED`-gate, so the chat still works if the index is missing,
-  empty, or chromadb isn't importable.
-- **Env:** `RAG_ENABLED` (true/false), `RAG_EMBED_PROVIDER` (local|gemini),
-  `RAG_TOP_K`, `RAG_EMBED_MODEL` (gemini only), `RAG_DATA_DIR`, `RAG_STORE_DIR`.
-
-> **Windows note:** local onnxruntime needs the VC++ 2015–2022 x64 runtime; an
-> outdated runtime causes `DLL initialization routine failed` (import) or a
-> segfault (inference). Fixed by installing the latest `vc_redist.x64.exe`.
 
 ## AI provider
 
