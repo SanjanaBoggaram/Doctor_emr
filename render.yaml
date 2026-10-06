@@ -22,7 +22,7 @@ services:
       - key: AI_PROVIDER
         value: openrouter
       - key: AI_MODEL
-        value: "nvidia/nemotron-3-nano-30b-a3b"
+        value: "inclusionai/ling-3.0-flash-sante:free"
       - key: OPENROUTER_API_KEY
         sync: false                  # paste in the dashboard
       # ALLOWED_HOSTS / CSRF for *.onrender.com are auto-detected in settings.py.
